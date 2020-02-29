@@ -9,27 +9,105 @@
 
 
 <div id="post-list">
-
   <% @posts.each do |post| %>
     <%= render :partial => "post", :locals => { :post => post } %>
   <% end %>
-
 </div>
 
 <script>
-  // 這會綁click事件到所有 有.delete-post class 的元素上，也就是所有刪除按鈕
-  $(".delete-post").click(function(evt){
-    // evt 是瀏覽器的事件物件，evt.preventDefault(); 會終止這個元素的默認行為
-    // 超連結 a 的默認行為是跳到下一頁，如果沒有這行的話，送出ajax後會跳去show page
-    evt.preventDefault();
-    // this 是個特別的變量，代表觸發事件的元素，使用 attr 可以讀取元素的屬性，這裡要拿到超連結的網址
-    var url = $(this).attr("href");
+   // 這會綁 click 事件到所有 有 .delete-post class的元素上，也就是所有刪除按鈕
+   $("#post-list").on('click', ".delete-post", function(evt){
+     // evt 是瀏覽器的事件物件，evt.preventDefault(); 會終止這個元素的默認行為
+     evt.preventDefault();
+     // this 是個特別的變量，代表觸發事件的元素。使用 attr 可以讀取元素的屬性，這裡要拿到超連結的網址
+     var url = $(this).attr("href");
+     var that = this;
 
-    // 送出Ajax
-    $.ajax({
-      url: url,
-      method: 'DELETE',
-      dataType: 'script' // 要求 server 回傳 javascript
-    })
-  })
-</script>
+     //送出 Ajax
+     $.ajax({
+       url: url,
+       method: 'DELETE',
+       dataType: 'json', // 要求 server 回傳 json
+       success: function(data){   // data 就是 server 回傳的 JSON 資料
+         $(that).closest(".panel").remove();
+       }
+     })
+   })
+
+   // 記下目前畫面最小的貼文id
+   var current_post_id = <%= @posts.last.id %>;
+
+   // 當捲軸動的時候，會觸發這個事件
+   $(window).scroll(function(){
+     // 當捲到最下面的時候
+     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+       var url = "/posts?max_id=" + current_post_id;
+       if (url) {
+         $.ajax({
+           method: "GET",
+           url: url,
+           dataType: "script"
+         })
+       } else {
+         console.log("data ended")
+       }
+     }
+   })
+
+   $("#post-list").on('change', ".toggle-flag", function(){
+     var url = $(this).data("url");
+     var that = this;
+
+     $.ajax({
+       url: url,
+       method: "POST",
+       dataType: "json",
+       success: function(data){
+         if ( data["flag_at"] ) {
+           $(that).closest("label").find("span").html(data["flag_at"]);
+         } else {
+           $(that).closest("label").find("span").html("");
+         }
+       }
+     });
+   });
+
+   $("#post-list").on('change', ".select_category", function(){
+     var url = $(this).data("url");
+     var that = this;
+
+     $.ajax({
+       url: url,
+       method: "PATCH",
+       dataType: "json",
+       data: {
+         post: {
+           category_id: $(this).val()
+         }
+       },
+       beforeSend: function(){
+         $(that).after( $(' <img src="/images/ajax-loader.gif" id="ajax-loading">') );
+       },
+       complete: function(){
+         $("#ajax-loading").remove();
+       }
+     });
+   });
+
+  $(".raty").raty({
+    path: '/images/',
+    score: function() { return $(this).data('score'); },
+    click: function(score) {
+      var that = this;
+      $.ajax({
+        url: $(this).data("score-url"),
+        method: "POST",
+        data: { score: score },
+        dataType: "json",
+        success: function(data){
+          $(that).closest(".panel-body").find(".average-score").html( data["average_score"] );
+        }
+      })
+    }
+  });
+ </script>

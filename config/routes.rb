@@ -10,11 +10,13 @@ Rails.application.routes.draw do
       post "unlike" => "posts#unlike"
       post "collect" => "posts#collect"
       post "cancel" => "posts#cancel"
+      post "toggle_flag" => "posts#toggle_flag"
+      post "rate" => "posts#rate"
     end
   end
 
   resources :collects
-  
+
   get "jquery-1" => "pages#jquery_1"
   get "jquery-2" => "pages#jquery_2"
   get "jquery-3" => "pages#jquery_3"

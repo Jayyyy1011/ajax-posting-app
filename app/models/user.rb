@@ -21,4 +21,8 @@ class User < ApplicationRecord
     collected_posts.include?(post)
   end
 
+  def is_admin?
+    role == "admin"
+  end
+
 end
