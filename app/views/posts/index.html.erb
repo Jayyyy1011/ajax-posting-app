@@ -1,0 +1,35 @@
+<%= form_for Post.new, :remote => true do |f| %>
+  <div class="form-group">
+      <%= f.text_area :content, :class => "form-control" %>
+  </div>
+  <div class="form-group">
+    <%= f.submit :class => "btn btn-primary" %>
+  </div>
+<% end %>
+
+
+<div id="post-list">
+
+  <% @posts.each do |post| %>
+    <%= render :partial => "post", :locals => { :post => post } %>
+  <% end %>
+
+</div>
+
+<script>
+  // 這會綁click事件到所有 有.delete-post class 的元素上，也就是所有刪除按鈕
+  $(".delete-post").click(function(evt){
+    // evt 是瀏覽器的事件物件，evt.preventDefault(); 會終止這個元素的默認行為
+    // 超連結 a 的默認行為是跳到下一頁，如果沒有這行的話，送出ajax後會跳去show page
+    evt.preventDefault();
+    // this 是個特別的變量，代表觸發事件的元素，使用 attr 可以讀取元素的屬性，這裡要拿到超連結的網址
+    var url = $(this).attr("href");
+
+    // 送出Ajax
+    $.ajax({
+      url: url,
+      method: 'DELETE',
+      dataType: 'script' // 要求 server 回傳 javascript
+    })
+  })
+</script>

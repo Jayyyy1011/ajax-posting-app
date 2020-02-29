@@ -5,7 +5,7 @@
     <%= csrf_meta_tags %>
 
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application' %>
   </head>
 
   <body>
@@ -14,6 +14,25 @@
     <%= link_to "jQuery 練習三", jquery_3_path %> |
     <%= link_to "jQuery 練習四", jquery_4_path %> |
     <%= link_to "jQuery 練習五", jquery_5_path %> |
+    <%= link_to "所有文章", posts_path %>
+
+    <% if flash[:notice] %>
+      <%= flash[:notice] %>
+    <% end %>
+
+    <% if flash[:alert] %>
+      <%= flash[:alert] %>
+    <% end %>
+
+    <% if current_user %>
+      <%= link_to("我的收藏", collects_path) %>
+      <%= link_to('登出', destroy_user_session_path, :method => :delete) %>
+      <%= link_to('修改密碼', edit_registration_path(:user)) %>
+    <% else %>
+      <%= link_to('註冊', new_registration_path(:user)) %> |
+      <%= link_to('登入', new_session_path(:user)) %>
+    <% end %>
+
     <%= yield %>
   </body>
 </html>
